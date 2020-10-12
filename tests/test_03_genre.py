@@ -4,7 +4,6 @@ from .common import create_users_api, auth_client, create_genre
 
 
 class Test03GenreAPI:
-
     @pytest.mark.django_db(transaction=True)
     def test_01_genre_not_auth(self, client):
         response = client.get('/api/v1/genres/')
@@ -83,10 +82,7 @@ class Test03GenreAPI:
 
     def check_permissions(self, user, user_name, genres):
         client_user = auth_client(user)
-        data = {
-            'name': 'Боевик',
-            'slug': 'action'
-        }
+        data = {'name': 'Боевик', 'slug': 'action'}
         response = client_user.post('/api/v1/genres/', data=data)
         assert response.status_code == 403, \
             f'Проверьте, что при POST запросе `/api/v1/genres/` ' \
@@ -99,10 +95,7 @@ class Test03GenreAPI:
     @pytest.mark.django_db(transaction=True)
     def test_04_genres_check_permission(self, client, user_client):
         genres = create_genre(user_client)
-        data = {
-            'name': 'Боевик',
-            'slug': 'action'
-        }
+        data = {'name': 'Боевик', 'slug': 'action'}
         response = client.post('/api/v1/genres/', data=data)
         assert response.status_code == 401, \
             f'Проверьте, что при POST запросе `/api/v1/genres/` ' \
@@ -114,4 +107,3 @@ class Test03GenreAPI:
         user, moderator = create_users_api(user_client)
         self.check_permissions(user, 'обычного пользователя', genres)
         self.check_permissions(moderator, 'модератора', genres)
-

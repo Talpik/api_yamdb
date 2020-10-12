@@ -4,7 +4,6 @@ from .common import create_users_api, auth_client, create_categories
 
 
 class Test02CategoryAPI:
-
     @pytest.mark.django_db(transaction=True)
     def test_01_category_not_auth(self, client):
         response = client.get('/api/v1/categories/')
@@ -19,24 +18,15 @@ class Test02CategoryAPI:
         response = user_client.post('/api/v1/categories/', data=data)
         assert response.status_code == 400, \
             'Проверьте, что при POST запросе `/api/v1/categories/` с не правильными данными возвращает статус 400'
-        data = {
-            'name': 'Фильм',
-            'slug': 'films'
-        }
+        data = {'name': 'Фильм', 'slug': 'films'}
         response = user_client.post('/api/v1/categories/', data=data)
         assert response.status_code == 201, \
             'Проверьте, что при POST запросе `/api/v1/categories/` с правильными данными возвращает статус 201'
-        data = {
-            'name': 'Новые фильмы',
-            'slug': 'films'
-        }
+        data = {'name': 'Новые фильмы', 'slug': 'films'}
         response = user_client.post('/api/v1/categories/', data=data)
         assert response.status_code == 400, \
             'Проверьте, что при POST запросе `/api/v1/categories/` нельзя создать 2 категории с одинаковым `slug`'
-        data = {
-            'name': 'Книги',
-            'slug': 'books'
-        }
+        data = {'name': 'Книги', 'slug': 'books'}
         response = user_client.post('/api/v1/categories/', data=data)
         assert response.status_code == 201, \
             'Проверьте, что при POST запросе `/api/v1/categories/` с правильными данными возвращает статус 201'
@@ -92,15 +82,13 @@ class Test02CategoryAPI:
 
     def check_permissions(self, user, user_name, categories):
         client_user = auth_client(user)
-        data = {
-            'name': 'Музыка',
-            'slug': 'music'
-        }
+        data = {'name': 'Музыка', 'slug': 'music'}
         response = client_user.post('/api/v1/categories/', data=data)
         assert response.status_code == 403, \
             f'Проверьте, что при POST запросе `/api/v1/categories/` ' \
             f'с токеном авторизации {user_name} возвращается статус 403'
-        response = client_user.delete(f'/api/v1/categories/{categories[0]["slug"]}/')
+        response = client_user.delete(
+            f'/api/v1/categories/{categories[0]["slug"]}/')
         assert response.status_code == 403, \
             f'Проверьте, что при DELETE запросе `/api/v1/categories/{{slug}}/` ' \
             f'с токеном авторизации {user_name} возвращается статус 403'
@@ -108,19 +96,16 @@ class Test02CategoryAPI:
     @pytest.mark.django_db(transaction=True)
     def test_04_category_check_permission(self, client, user_client):
         categories = create_categories(user_client)
-        data = {
-            'name': 'Музыка',
-            'slug': 'music'
-        }
+        data = {'name': 'Музыка', 'slug': 'music'}
         response = client.post('/api/v1/categories/', data=data)
         assert response.status_code == 401, \
             f'Проверьте, что при POST запросе `/api/v1/categories/` ' \
             f'без токена авторизации возвращается статус 401'
-        response = client.delete(f'/api/v1/categories/{categories[0]["slug"]}/')
+        response = client.delete(
+            f'/api/v1/categories/{categories[0]["slug"]}/')
         assert response.status_code == 401, \
             f'Проверьте, что при DELETE запросе `/api/v1/categories/{{slug}}/` ' \
             f'без токена авторизации возвращается статус 401'
         user, moderator = create_users_api(user_client)
         self.check_permissions(user, 'обычного пользователя', categories)
         self.check_permissions(moderator, 'модератора', categories)
-
