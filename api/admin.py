@@ -1,19 +1,12 @@
+from django.apps import apps
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 
-from .models import Review, Comment
+User = get_user_model()
+models = apps.get_models()
 
-
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('title_id', 'author', 'pk')
-    search_fields = ('title_id',)
-    list_filter = ('title_id',)
-
-
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'text', 'pub_date')
-    search_fields = ('text',)
-    list_filter = ('pub_date',)
-
-
-admin.site.register(Review, ReviewAdmin)
-admin.site.register(Comment, CommentAdmin)
+for model in models:
+    try:
+        admin.site.register(model)
+    except admin.sites.AlreadyRegistered:
+        pass
